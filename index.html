@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
   <p>読み込み中...</p>
   <script>
     const LIFF_ID = "2008532225-AqpmBDeW";
-    // index.html の 11 行目付近
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzXYVPjjgeTZAofcRisIT7J1zwch67b4zvyUUGKEHffGecl3WnVeQuO8bowiZ1rryur/exec";
+    const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdLLr89G09vQaXr-cAG-Si3W4ygCfzln1e5-JPA8VOMsho06Q/viewform";
+
+    function redirectToForm(uid, displayName) {
+      window.location.href = FORM_URL
+        + "?entry.156326472=" + encodeURIComponent(uid)
+        + "&entry.1613562678=" + encodeURIComponent(displayName);
+    }
 
     liff.init({ liffId: LIFF_ID })
       .then(() => {
@@ -22,7 +28,15 @@
         if (!profile) return;
         const uid = profile.userId;
         const displayName = profile.displayName;
-        window.location.href = GAS_URL + "?uid=" + encodeURIComponent(uid) + "&displayName=" + encodeURIComponent(displayName);
+
+        liff.sendMessages([{
+          type: 'text',
+          text: 'アンケートを開始します。'
+        }])
+        .catch(() => {}) // 送信失敗しても続行
+        .finally(() => {
+          redirectToForm(uid, displayName);
+        });
       })
       .catch(err => {
         document.body.innerText = "エラー: " + err.message;
